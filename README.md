@@ -2,15 +2,13 @@
 
 🔍 Preview
 ----------------------
-<figure>
-    <img src="assets/buble_fail.gif" width="40%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
-    <figcaption>새로운 가수 요청 시, DB에 관련 데이터를 저장</figcaption>
-</figure>
+1. 새로운 가수 요청 시, DB에 관련 데이터를 저장
 
-<figure>
-    <img src="assets/buble_related.gif" width="40%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
-    <figcaption>매일 새벽 3시 배치 처리 이후, 관련 가수 추천</figcaption>
-</figure>
+<img src="assets/buble_fail.gif" width="30%" height="30%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+
+2. 매일 새벽 3시 배치 처리 이후, 관련 가수 추천
+
+<img src="assets/buble_related.gif" width="30%" height="30%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 
 ## Table of Contents
 --------------------------------
