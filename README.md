@@ -5,12 +5,12 @@
 1. 새로운 가수 요청 시, 실시간 응답 및 DB 업데이트
 <br></br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_fail.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_fail.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 </br>
 </br>
 2. 매일 새벽 3시 배치 처리 이후, 관련 가수 추천
 <br></br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_related.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_related.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 </br>
 </br>
 
