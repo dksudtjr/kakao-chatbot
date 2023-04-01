@@ -15,36 +15,46 @@
 </br>
 
 ## 📖 Table of Contents
-1. [프로젝트 소개](#프로젝트-소개)
-2. [개발 환경](#개발-환경)
-3. [데이터 모델](#데이터-모델)
-4. [데이터 파이프라인](#데이터-파이프라인)
-5. [관련 가수 추천 알고리즘](#관련-가수-추천-알고리즘)
-6. [파일 설명](#파일-설명)
-7. [Related Efforts](#related-efforts)
+0. [Background](#0-Background)
+1. [프로젝트 소개](#1-프로젝트-소개)
+2. [개발 환경](#2-개발-환경)
+3. [데이터 모델](#3-데이터-모델)
+4. [데이터 파이프라인](#4-데이터-파이프라인)
+5. [관련 가수 추천 알고리즘](#5-관련-가수-추천-알고리즘)
+6. [파일 설명](#6-파일-설명)
+<br></br>
 
+## 0. Background
+1. AWS Lambda
+2. AWS Athena
+3. .parquet
+4. RDS
+5. DynamoDB
+6. S3
 
+<br></br>
 
 ## 1. 프로젝트 소개
 Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 이용하여, 사용자가 가수를 입력하면 관련 가수들을 추천하는 카카오 챗봇입니다. 
+<br></br>
 
-<br></br>
-<br></br>
 ## 2. 개발 환경
 
-<br></br>
 - 언어: `python 3.8`
 - 데이터: <a href="https://developer.spotify.com/documentation/web-api">Spotify for Developers - Web API</a>
+    1. <a href="https://developer.spotify.com/documentation/web-api/reference/search">Search</a>
+    2. <a href="https://developer.spotify.com/documentation/web-api/reference/get-an-artists-top-tracks">Artists</a>
+    3. <a href="https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features">Track</a>
 - 서버리스 컴퓨팅 서비스: `AWS Lambda`
 - 서버리스 컴퓨팅 서비스 트리거: `Amazon API Gateway`, `Amazon EventBridge`
 - DB: `Amazon RDS(MySQL)`, `Amazon DynamoDB`
 - 스토리지: `Amazon S3`
 - 스토리지 쿼리 서비스: `AWS Athena`
 <br></br>
-<br></br>
+
 
 ## 3. 데이터 모델
-
+<br></br>
 <img src="assets/data_model.png" width="100%" height="100%" title="데이터 모델" alt="데이터 모델"></img>
 <br></br>
 - `artists`: `RDS(MySQL)` 테이블입니다. 가수 관련 데이터입니다.
@@ -56,6 +66,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ## 4. 데이터 파이프라인
 
+<br></br>
 <img src="assets/data_pipeline_1.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 <br></br>
 
