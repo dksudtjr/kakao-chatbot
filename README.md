@@ -1,6 +1,6 @@
 # kakao-chatbot (using Spotify data)
 
-🎉 해당 챗봇은 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. (<a href="https://pf.kakao.com/_acwkxj">링크</a>)
+해당 챗봇🤖은 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. (<a href="https://pf.kakao.com/_acwkxj">링크</a>)
 
 <br></br>
 
