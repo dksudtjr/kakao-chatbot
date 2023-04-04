@@ -1,16 +1,20 @@
 # kakao-chatbot (using Spotify data)
-✔️ 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. 
+
+🎉 해당 챗봇은 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. (<a href="https://pf.kakao.com/_acwkxj">링크</a>)
+
+<br></br>
+
 ## 🔍 Preview
 </br>
 1. 새로운 가수 요청 시, 실시간 응답 및 DB 업데이트
 <br></br>
 
-&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_fail.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_fail_compressed.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 
 <br></br>
 2. 매일 새벽 3시 배치 처리 이후, 관련 가수 추천
 <br></br>
-&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_related.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+&nbsp;&nbsp;&nbsp;&nbsp; <img src="assets/buble_related_compressed.gif" width="35%" height="35%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 
 <br></br>
 
@@ -19,12 +23,12 @@
 </br>
 
 1. [Background](#1-Background)</br>
-    1) [AWS Lambda](#1-1-aws-lambda)
-    2) [AWS Athena](#1-2-aws-athena)
-    3) [.parquet](#1-3-parquet)
+    1-1) [AWS Lambda](#1-1-aws-lambda)</br>
+    1-2) [AWS Athena](#1-2-aws-athena)</br>
+    1-3) [.parquet](#1-3-parquet)</br>
 2. [개발 환경](#2-개발-환경)</br>
-    1) [주요 개발 환경](#2-1-주요-개발-환경)</br>
-    2) [개발 환경 선택 이유](#2-2-개발-환경-선택-이유)</br>
+    2-1) [주요 개발 환경](#2-1-주요-개발-환경)</br>
+    2-2) [개발 환경 선택 이유](#2-2-개발-환경-선택-이유)</br>
 3. [프로젝트 설명](#3-프로젝트-설명)</br>
     3-1) [프로젝트 소개](#3-1-프로젝트-소개)</br>
     3-2) [데이터 모델](#3-2-데이터-모델)</br>
@@ -32,7 +36,6 @@
     3-4) [전체 과정 요약](#3-4-전체-과정-요약)</br>
     3-5) [파일 설명](#3-5-파일-설명)</br>
     3-6) [주요 고려 사항](#3-6-주요-고려-사항)</br>
-
 3. [데이터 모델](#3-데이터-모델)
 4. [데이터 파이프라인](#4-데이터-파이프라인)
 5. [관련 가수 추천 알고리즘](#5-관련-가수-추천-알고리즘)
@@ -42,10 +45,10 @@
 
 ## 1. Background
 
-### 1) `AWS Lambda`
+### 1-1) `AWS Lambda`
 
 - 개념
-    > `AWS Lambda`는 서버를 프로비저닝 또는 관리하지 않고도 실제로 모든 유형의 애플리케이션 또는 백엔드 서비스에 대한 코드를 실행할 수 있는 이벤트 중심의 서버리스 컴퓨팅 서비스입니다. 하루에 수십 개의 이벤트에서 초당 수십만 개에 이르기까지 어떤 규모에서든 코드 실행 요청에 자동으로 응답합니다. 사용한 컴퓨팅 시간만큼만 비용을 지불하고, 코드가 실행되지 않을 때는 요금이 부과되지 않습니다.
+    > `AWS Lambda`는 이벤트에 대한 응답으로 코드를 실행하고 자동으로 컴퓨팅 리소스를 관리하는 서버리스 컴퓨팅 서비스입니다. 하루에 수십 개의 이벤트에서 초당 수십만 개에 이르기까지 어떤 규모에서든 코드 실행 요청에 자동으로 응답합니다. Amazon API Gateway를 통한 HTTP 요청, Amazon Simple Storage Service(Amazon S3) 버킷에 있는 객체에 대한 변경 사항, Amazon DynamoDB의 테이블 업데이트 또는 AWS Step Functions의 상태 전환과 같은 다양한 이벤트에 대한 응답으로 코드를 자동 실행할 수 있습니다. 사용한 컴퓨팅 시간만큼만 비용을 지불하고, 코드가 실행되지 않을 때는 요금이 부과되지 않습니다.
 
 - 장점
 
@@ -75,16 +78,16 @@
 
 - 단점
 
-`AWS Lambda`는 요청에 따라 자동으로 확장된다는 장점에 따라 필연적으로 cold start라는 단점을 갖게 됩니다. 대표적으로 다음과 같은 단점을 가지고 있습니다. 
+    `AWS Lambda`는 요청에 따라 자동으로 확장된다는 장점에 따라 필연적으로 cold start라는 단점을 갖게 됩니다. 대표적으로 다음과 같은 단점을 가지고 있습니다. 
 
-1.  `Cold start`: AWS Lambda는 처음 동작할 때, 코드를 다운로드 받고, 실행 환경을 시작하는 cold start로 인해 지연 시간이 발생합니다. 물론, 이미 실행된 함수를 일정 시간 안에 다시 호출하면 컨테이너가 살아있는 동안에는 cold start가 없습니다. Provisioned Concurrency 옵션을 사용하면 미리 실행 환경(런타임 준비, 클래스 로딩 등)을 프로비저닝하여 cold start를 방지할 수 있지만, EC2를 켜두는 것과 유사하기 때문에 더 많은 비용이 발생합니다.
+    1.  `Cold start`: AWS Lambda는 처음 동작할 때, 코드를 다운로드 받고, 실행 환경을 시작하는 cold start로 인해 지연 시간이 발생합니다. 물론, 이미 실행된 함수를 일정 시간 안에 다시 호출하면 컨테이너가 살아있는 동안에는 cold start가 없습니다. Provisioned Concurrency 옵션을 사용하면 미리 실행 환경(런타임 준비, 클래스 로딩 등)을 프로비저닝하여 cold start를 방지할 수 있지만, EC2를 켜두는 것과 유사하기 때문에 더 많은 비용이 발생합니다.
 
-2. `제한된 메모리`: Lambda 함수는 최대 3GB의 메모리를 사용할 수 있습니다. 따라서 대규모 메모리를 필요로 하는 응용 프로그램에서는 제한될 수 있습니다. 또한 사용자가 CPU를 직접 설정할 수 없으며, 사용자가 선택한 메모리에 따라 CPU 할당량이 자동으로 조정됩니다. 즉, 함수가 더 많은 메모리를 할당받으면 CPU 할당량도 자동으로 증가합니다. 따라서 Lambda함수를 최적화하려면 메모리 할당량과 실행 시간, CPU 사용량을 모니터링하고 최적의 설정을 찾아내야 합니다. 
+    2. `제한된 메모리`: Lambda 함수는 최대 3GB의 메모리를 사용할 수 있습니다. 따라서 대규모 메모리를 필요로 하는 응용 프로그램에서는 제한될 수 있습니다. 또한 사용자가 CPU를 직접 설정할 수 없으며, 사용자가 선택한 메모리에 따라 CPU 할당량이 자동으로 조정됩니다. 즉, 함수가 더 많은 메모리를 할당받으면 CPU 할당량도 자동으로 증가합니다. 따라서 Lambda함수를 최적화하려면 메모리 할당량과 실행 시간, CPU 사용량을 모니터링하고 최적의 설정을 찾아내야 합니다. 
 
-3. `제한적인 실행 시간`: AWS Lambda 함수는 기본적으로 15분 이내의 실행 시간 제한이 있습니다. 긴 시간이 소요되는 작업에는 적합하지 않습니다.
+    3. `제한적인 실행 시간`: AWS Lambda 함수는 기본적으로 15분 이내의 실행 시간 제한이 있습니다. 긴 시간이 소요되는 작업에는 적합하지 않습니다.
 
 
-### 2) `Amazon Athena`
+### 1-2) `Amazon Athena`
 
 - 개념
     > `Amazon Athena`는 표준 SQL을 사용해 Amazon S3에 있는 데이터를 직접 간편하게 분석할 수 있는 대화형 쿼리 서비스입니다. S3에 저장된 데이터를 가리키도록 Athena를 설정하고 표준 SQL을 사용하여 대화형 쿼리를 실행한 후 결과를 얻을 수 있습니다. Athena는 서버리스 서비스이므로 설정하거나 관리할 인프라를 없으며 실행한 쿼리에 대해서만 비용을 지불하면 됩니다. Athena를 사용하여 로그를 처리하고 데이터 분석을 수행하며 대화형 쿼리를 실행할 수 있습니다. Athena는 자동으로 확장되어 쿼리를 병렬로 실행하므로 데이터 집합이 크고 쿼리가 복잡해도 결과를 빠르게 얻을 수 있습니다.  
@@ -107,7 +110,7 @@
 
     3. `복잡한 쿼리 지원 부족`: Athena는 뛰어난 성능을 제공하지만 몇 가지 복잡한 쿼리 유형에 대해서는 지원하지 않습니다. 이러한 경우, Redshift 또는 EMR과 같은 다른 AWS 서비스를 고려해야 할 수 있습니다.
 
-### 3) `.parquet`
+### 1-3) `.parquet`
 
 - `row-지향 스토리지` vs `column-지향 스토리지`
     - row-지향 스토리지는 데이터를 한 row씩 배치하는 반면, column-지향 스토리지는 데이터를 한 column씩 배치합니다. row-지향 스토리지는 row 단위로 읽고 쓰는 데 최적화 되어 있으며, index를 통해 빠르게 검색할 수 있습니다. 하지만, 데이터 분석에서는 어떤 칼럼이 사용되는지 미리 알 수 없어서 index가 큰 도움이 되지 않을 수 있습니다. column-지향 스토리지는 column 단위 집계에 최적화 되어 있습니다. 테이블의 column 별로 데이터를 보관하기 때문에 필요한 column만 읽기에는 빠르지만 row를 읽기에는 최적화되어 있지 않습니다. 
@@ -136,12 +139,12 @@ Parquet은 데이터를 컬럼 기반으로 저장하기 때문에, 각 컬럼�
 
 ## 2. 개발 환경
 
-### 1) 주요 개발 환경
+### 2-1) 주요 개발 환경
 - 언어: `python 3.8`
 - 데이터: <a href="https://developer.spotify.com/documentation/web-api">Spotify for Developers - Web API</a>
-    1. <a href="https://developer.spotify.com/documentation/web-api/reference/search">Search</a>
-    2. <a href="https://developer.spotify.com/documentation/web-api/reference/get-an-artists-top-tracks">Artists</a>
-    3. <a href="https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features">Track</a>
+    1. <a href="https://developer.spotify.com/documentation/web-api/reference/search">Search</a>: artists 데이터
+    2. <a href="https://developer.spotify.com/documentation/web-api/reference/get-an-artists-top-tracks">Artists</a>: top tracks 데이터
+    3. <a href="https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features">Track</a>: audio features 데이터
 - 서버리스 컴퓨팅 서비스: `AWS Lambda`
 - 서버리스 컴퓨팅 서비스 트리거: `Amazon API Gateway`, `Amazon EventBridge`
 - DB: `Amazon RDS(MySQL)`, `Amazon DynamoDB`
@@ -156,41 +159,63 @@ Parquet은 데이터를 컬럼 기반으로 저장하기 때문에, 각 컬럼�
 
 <br></br>
 
-### 2) 개발 환경 선택 이유
-1. `Lambda`: 국내에서 서비스하는 챗봇은 출퇴근 등 특정 시간대에 사용량이 몰리고, 새벽과 같은 시간대에는 사용되지 않습니다. Lambda는 사용자 요청이 급증하면 자동 확장하여 병렬 처리가 가능하므로 적합합니다. 또한 Lambda함수의 실행 시간에 따라 비용이 부과되므로 사용되지 않는 시간에 비용을 아낄 수 있습니다.
+### 2-2) 개발 환경 선택 이유
+1. `Lambda`: 국내에서 서비스하는 챗봇은 특정 시간대에 사용량이 몰리고, 새벽과 같은 시간대에는 사용되지 않습니다. Lambda는 사용자 요청이 급증하면 자동 확장하여 병렬 처리가 가능하므로 적합합니다. 또한 Lambda함수의 실행 시간에 따라 비용이 부과되므로 사용되지 않는 시간에 비용을 아낄 수 있습니다. 또한 반복적으로 처리되어야 하는 로직을 개별 Lambda로 생성하여 비동기 호출함으로써 효율성을 향상시킬 수 있습니다. 해당 프로젝트에서는 2개의 Lambda(kakao-chatbot, related-artists)가 1개의 Lambda(top-tracks)를 비동기 호출합니다. Lambda(top-tracks)는 batch writing을 통해 DynamoDB(top_tracks)를 업데이트합니다. batch writing를 활용하면 자동으로 버퍼링을 관리하고 아이템을 batch로 보내므로 처리 속도를 높이고 write 요청 수를 줄일 수 있습니다. 
+
 2. `S3`, `Athena`: 최신 데이터를 사용하여 서비스하는 챗봇이므로 매일 top tracks, audio features 데이터가 업데이트됩니다. 많은 양의 데이터를 효율적으로 저장하고 스캔해야 했습니다. 이를 위해 데이터를 parquet포맷으로 변환하고 S3에 날짜 별 파티셔닝을 통해 저장함으로써 스캔하는 데이터의 양을 줄이고 Athena의 쿼리 성능을 향상시키는 것이 좋다고 판단했습니다. 실제로 <a href="https://docs.aws.amazon.com/index.html">AWS documentation</a>에서도 데이터를 column 기반 형식으로 변환하고, 파티셔닝을 활용하여 Athena 쿼리 성능을 개선할 것을 추천합니다.
-3. `Spotify API`: 음원 데이터를 제공하는 국내 서비스는 없습니다. 현재 시점(2023.03)에서 spotify에서 제공하는 음원 데이터가 양적, 질적으로 가장 우수하다고 판단 됩니다.
-4. `Amazon API Gateway`: 사용자의 요청을 실시간을 처리하는 Lambda(kako-chatbot/lambda_function)의 트리거로 추가합니다.
-5. `Amazon EventBridge`: 최신 top track과 관련 가수를 업데이트하는 Lambda(related_artists/lambda_function)의 트리거로 추가합니다. EventBridge의 cron표현식을 통해 매일 새벽 3시에 Lambda를 자동 실행합니다.
-6. `카카오톡 챗봇`: 국내에서 가장 많은 사용자를 보유한 메신저 서비스입니다. 이에 따라 사용자의 접근이 편리하다는 장점이 있습니다. 또한 챗봇 개발과 관련하여 상세한 <a href="https://i.kakao.com/docs/skill-dev-guide-v1#%EC%8A%A4%ED%82%AC-%EB%93%B1%EB%A1%9D">가이드</a>를 제공하므로 개발이 쉽습니다. 참고로, 사용자의 요청에 응답하는 것은 무료이지만, 챗봇이 먼저 메시지를 push하려면 비용이 발생합니다.
+
+3. `DynamoDB`: 가수 별 top tracks 데이터를 저장합니다(Spotify API를 통해 가수마다 최대 10개의 top track 데이터를 얻을 수 있습니다.) DynamoDB에서 partition key(가수 ID), sort key(top track ID)를 설정하여 테이블을 생성합니다. DynamoDB는 partition key(가수 ID)로 테이블을 수평 분할하고 sort key(top track ID)를 이용하여 필요한 '아티스트의 트랙'만 조회하므로 효율적입니다. 반면에 RDS(MySQL)는 PK로 가수 ID를 지정하면, 10개의 top track을 한 column에 모두 집어 넣어야 하므로 비효율적입니다.
+
+4. `Spotify API`: 음원 데이터를 제공하는 국내 서비스는 없습니다. 현재 시점(2023.03)에서 spotify에서 제공하는 음원 데이터가 양적, 질적으로 가장 우수하다고 판단 됩니다.
+
+5. `Amazon API Gateway`: 사용자의 요청을 실시간을 처리하는 Lambda(kako-chatbot/lambda_function)의 트리거로 추가합니다.
+
+6. `Amazon EventBridge`: 최신 top track과 관련 가수를 업데이트하는 Lambda(related_artists/lambda_function)의 트리거로 추가합니다. EventBridge의 cron표현식을 통해 매일 새벽 3시에 Lambda를 자동 실행합니다.
+
+7. `카카오톡 챗봇`: 국내에서 가장 많은 사용자를 보유한 메신저 서비스입니다. 이에 따라 사용자의 접근이 편리하다는 장점이 있습니다. 또한 챗봇 개발과 관련하여 상세한 <a href="https://i.kakao.com/docs/skill-dev-guide-v1#%EC%8A%A4%ED%82%AC-%EB%93%B1%EB%A1%9D">가이드</a>를 제공하므로 개발이 쉽습니다. 참고로, 사용자의 요청에 응답하는 것은 무료이지만, 챗봇이 먼저 메시지를 push하려면 비용이 발생합니다.
 
 <br></br>
 
 
 
 ## 3. 프로젝트 설명
+
+### 3-1) 프로젝트 소개
 Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 이용하여, 사용자가 가수를 입력하면 관련 가수들을 추천하는 카카오 챗봇입니다. 
+
 <br></br>
 
-### 1) 프로젝트 소개
-
-### 2) 데이터 모델
+### 3-2) 데이터 모델
 <center><img src="assets/data_model.png" width="80%" height="80%" title="데이터 모델" alt="데이터 모델"></img></center>
 <br></br>
 
 - `artists`: `RDS(MySQL)` 테이블입니다. 가수 관련 데이터입니다.
-- `top_tracks`: `DynamoDB` 테이블입니다. 가수 별 인기 트랙들입니다. `Athena`를 통해 분석하므로 `S3` 버킷에도 저장했습니다. 쿼리 성능 향상을 목적으로 날짜를 기준으로 파티션을 생성해서 `.parquet` 포맷으로 저장했습니다.
+- `top_tracks`: `DynamoDB` 테이블입니다. 가수 별 인기 트랙들입니다. 테이블 생성 시, partition key(artist_id), sort key(id)를 설정했습니다. 해당 프로젝트에서는 artist_id를 통해 파티셔닝하고, parition key, sort key를 조합한 primary key를 이용해서 단일 아이템을 특정합니다. `Athena`를 통해 분석하므로 `S3` 버킷에도 저장했습니다. 쿼리 성능 향상을 목적으로 날짜를 기준으로 파티션을 생성해서 `.parquet` 포맷으로 저장했습니다.
 - `audio_features`: 각 트랙 별 음원 특성 데이터입니다. 관련 가수를 추천하는 데 사용되는 데이터입니다.  `Athena`를 통해 분석하므로 `S3` 버킷에 저장했습니다. 쿼리 성능 향상을 목적으로 날짜를 기준으로 파티션을 생성해서 `.parquet` 포맷으로 저장했습니다.
 - `related_artists`: `RDS(MySQL)` 테이블입니다. 관련 가수를 추천하는 데 사용되는 데이터입니다. `Athena`를 통해 `S3`의 데이터(`top_tracks`, `audio_features`)를 분석한 결과입니다.
 
 <br></br>
 
-### 3) 데이터 파이프라인
+### 3-3) 데이터 파이프라인
 
+<br></br>
+1.사용자가 새로운 가수를 요청한 경우, 해당 가수의 top tracks 응답 (DB에 관련 데이터 업데이트)
+<br></br>
+<img src="assets/data_pipeline_1.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+
+<br></br>
+2. 배치 처리를 통해 top tracks, 관련 가수 업데이트
+<br></br>
+<img src="assets/data_pipeline_2.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
+
+<br></br>
+3. 사용자가 요청한 가수의 top tracks, 관련 가수의 top tracks 응답
+<br></br>
+<img src="assets/data_pipeline_3.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 
 <br></br>
 
-### 4) 전체 과정 요약
+### 3-4) 전체 과정 요약
 
 - 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
     1. 최신 데이터를 S3 버킷에 업로드하고, DynamoDB(`top_tracks`) 업데이트
@@ -234,7 +259,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 <br></br>
 
 
-### 5) 파일 설명
+### 3-5) 파일 설명
 
 1. kakao-chatbot 폴더
     1. requirements.txt: 필요한 라이브러리 목록
@@ -281,14 +306,15 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 <br></br>
 
-### 6) 주요 고려 사항
+### 3-6) 주요 고려 사항
 
+1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 목적에 따라 배치 처리를 할 수 있는 Lambda와 실시간 처리를 할 수 있는 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, 비동기 처리가 필요한 로직을 별도의 Lambda로 구성하여 효율성을 향상시켰습니다.
 
+2. 각 데이터의 구조와 활용도에 따라 `RDS(MySQL)`, `DynamoDB`, `S3`에 적재했습니다. RDS(MySQL)은 테이블 간 관계가 필요할 때 사용했으며, DynamoDB는 partition key, sort key가 필요한 데이터를 적재하기 위해 사용했으며, batch writing을 활용하여 효율적으로 write할 수 있습니다. S3는 날짜 별 파티션을 통해 스캔하는 데이터의 양을 줄이고, AWS Athena를 통해 많은 양의 데이터를 분석하기 위해 사용했습니다.
 
+3. `Athena`는 S3의 데이터를 분석하기 위해 사용했습니다. AWS 개발자 가이드에서도 추천하듯이, Athena 쿼리 성능을 개선하기 위해 분석할 데이터를 `parquet`포맷으로 변환하여 S3에 적재했습니다.
 
-<br></br>
-
-
+4. 관련 가수를 추천할 때 Euclidean distance를 활용했습니다. 이를 통해 audio features(loudness, danceability, energy 등)의 거리가 가장 가까운 음악을 하는 가수를 추천할 수 있습니다.
 
 ## 3. 데이터 모델
 <br></br>
