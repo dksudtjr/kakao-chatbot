@@ -265,7 +265,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 1. 📂 lambda
 
-    1. kakao-chatbot 폴더
+    1. 📂 kakao-chatbot
         1. requirements.txt: 필요한 라이브러리 목록
         2. lambda_function.py: 실시간으로 사용자 요청을 처리하여 응답하는 Lambda함수 코드
         3. deploy.sh: 
@@ -273,7 +273,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
             2. 현재 폴더와 모든 하위폴더를 .zip 압축
             3. .zip을 s3로 업로드
             4. s3의 .zip 을 Lambda함수에 업데이트
-    2. top-tracks 폴더
+    2. 📂 top-tracks
         1. requirements.txt: 필요한 라이브러리 목록
         2. lambda_function.py: top tracks 데이터를 비동기로 저장하는 Lambda함수 코드
         3. deploy.sh
@@ -281,7 +281,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
             2. 현재 폴더와 모든 하위폴더를 .zip 압축
             3. .zip을 s3로 업로드
             4. s3의 .zip 을 Lambda함수에 업데이트
-    3. related-artists 폴더
+    3. 📂 related-artists
         1. requirements.txt: 필요한 라이브러리 목록
         2. lambda_function.py: 배치 처리를 통해 최신 top tracks를 업데이트하고 관련 가수를 계산하는 Lambda함수 코드
         3. deploy.sh
