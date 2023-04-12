@@ -36,10 +36,7 @@
     3-4) [전체 과정 요약](#3-4-전체-과정-요약)</br>
     3-5) [파일 설명](#3-5-파일-설명)</br>
     3-6) [주요 고려 사항](#3-6-주요-고려-사항)</br>
-3. [데이터 모델](#3-데이터-모델)
-4. [데이터 파이프라인](#4-데이터-파이프라인)
-5. [관련 가수 추천 알고리즘](#5-관련-가수-추천-알고리즘)
-6. [파일 설명](#6-파일-설명)
+
 
 <br></br>
 
@@ -323,44 +320,3 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 3. `Athena`는 S3의 데이터를 분석하기 위해 사용했습니다. AWS 개발자 가이드에서도 추천하듯이, Athena 쿼리 성능을 개선하기 위해 분석할 데이터를 `parquet`포맷으로 변환하여 S3에 적재했습니다.
 
 4. 관련 가수를 추천할 때 Euclidean distance를 활용했습니다. 이를 통해 audio features(loudness, danceability, energy 등)의 거리가 가장 가까운 음악을 하는 가수를 추천할 수 있습니다.
-
-## 3. 데이터 모델
-<br></br>
-<center><img src="assets/data_model.png" width="80%" height="80%" title="데이터 모델" alt="데이터 모델"></img></center>
-<br></br>
-
-- `artists`: `RDS(MySQL)` 테이블입니다. 가수 관련 데이터입니다.
-- `top_tracks`: `DynamoDB` 테이블입니다. 가수 별 인기 트랙들입니다. `Athena`를 통해 분석하므로 `S3` 버킷에도 저장했습니다. 쿼리 성능 향상을 목적으로 날짜를 기준으로 파티션을 생성해서 `.parquet` 포맷으로 저장했습니다.
-- `audio_features`: 각 트랙 별 음원 특성 데이터입니다. 관련 가수를 추천하는 데 사용되는 데이터입니다.  `Athena`를 통해 분석하므로 `S3` 버킷에 저장했습니다. 쿼리 성능 향상을 목적으로 날짜를 기준으로 파티션을 생성해서 `.parquet` 포맷으로 저장했습니다.
-- `related_artists`: `RDS(MySQL)` 테이블입니다. 관련 가수를 추천하는 데 사용되는 데이터입니다. `Athena`를 통해 `S3`의 데이터(`top_tracks`, `audio_features`)를 분석한 결과입니다.
-
-<br></br>
-
-## 4. 데이터 파이프라인
-
-<br></br>
-1.사용자가 새로운 가수를 요청한 경우, 해당 가수의 top tracks 응답 (DB에 관련 데이터 업데이트)
-<br></br>
-<img src="assets/data_pipeline_1.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
-
-<br></br>
-2. 배치 처리를 통해 top tracks, 관련 가수 업데이트
-<br></br>
-<img src="assets/data_pipeline_2.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
-
-<br></br>
-3. 사용자가 요청한 가수의 top tracks, 관련 가수의 top tracks 응답
-<br></br>
-<img src="assets/data_pipeline_3.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
-
-<br></br>
-
-## 5. 관련 가수 추천 알고리즘
-
-
-<br></br>
-
-## 6. 파일 설명
-
-
-<br></br>
