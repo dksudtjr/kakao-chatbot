@@ -192,7 +192,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 ### 3-3) 데이터 파이프라인
 
 <br></br>
-1. 사용자가 새로운 가수를 요청한 경우, 해당 가수의 top tracks 응답 (DB에 관련 데이터 업데이트)
+1.  사용자가 새로운 가수를 요청한 경우, 해당 가수의 top tracks 응답 (DB에 관련 데이터 업데이트)
 <br></br>
 <img src="assets/data_pipeline_1.png" width="100%" height="100%" title="태진아 관련 아티스트" alt="태진아 관련 아티스트"></img>
 
