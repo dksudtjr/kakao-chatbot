@@ -161,7 +161,7 @@ Parquet은 데이터를 컬럼 기반으로 저장하기 때문에, 각 컬럼�
 
 2. `S3`, `Athena`: 최신 데이터를 사용하여 서비스하는 챗봇이므로 매일 top tracks, audio features 데이터가 업데이트됩니다. 많은 양의 데이터를 효율적으로 저장하고 스캔해야 했습니다. 이를 위해 데이터를 parquet포맷으로 변환하고 S3에 날짜 별 파티셔닝을 통해 저장함으로써 스캔하는 데이터의 양을 줄이고 Athena의 쿼리 성능을 향상시키는 것이 좋다고 판단했습니다. 실제로 <a href="https://docs.aws.amazon.com/index.html">AWS documentation</a>에서도 데이터를 column 기반 형식으로 변환하고, 파티셔닝을 활용하여 Athena 쿼리 성능을 개선할 것을 추천합니다.
 
-3. `DynamoDB`: 가수 별 top tracks 데이터를 저장합니다(Spotify API를 통해 가수마다 최대 10개의 top track 데이터를 얻을 수 있습니다.) DynamoDB에서 partition key(가수 ID), sort key(top track ID)를 설정하여 테이블을 생성합니다. DynamoDB는 partition key(가수 ID)로 테이블을 수평 분할하고 sort key(top track ID)를 이용하여 필요한 '아티스트의 트랙'만 조회하므로 효율적입니다. 반면에 RDS(MySQL)는 PK로 가수 ID를 지정하면, 10개의 top track을 한 column에 모두 집어 넣어야 하므로 비효율적입니다.
+3. `DynamoDB`: 가수 별 top tracks 데이터를 저장합니다(Spotify API를 통해 가수마다 최대 10개의 top track 데이터를 얻을 수 있습니다.) DynamoDB에서 partition key(가수 ID), sort key(top track ID)를 설정하여 테이블을 생성합니다. DynamoDB는 partition key(가수 ID)로 테이블을 수평 분할하고 sort key(top track ID)를 이용하여 필요한 '아티스트의 트랙'만 조회하므로 효율적입니다. 또한 "Batch write"와 같은 NoSQL 데이터베이스의 대량 데이터 처리용 API를 사용하면, 여러 항목을 한 번에 쓰거나 삭제할 때 효율적입니다. 반면에 RDS(MySQL)는 PK로 가수 ID를 지정하면, 10개의 top track을 한 column에 모두 집어 넣어야 하므로 비효율적입니다.
 
 4. `Spotify API`: 음원 데이터를 제공하는 국내 서비스는 없습니다. 현재 시점(2023.03)에서 spotify에서 제공하는 음원 데이터가 양적, 질적으로 가장 우수하다고 판단 됩니다.
 
@@ -315,9 +315,9 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 배치 처리를 수행할 Lambda와 실시간 처리를 수행할 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, 비동기 처리가 필요한 로직을 별도의 Lambda로 분리하여 효율성을 향상시켰습니다. 
 
-    1. kakao-chatbot Lambda는 사용자 요청에 따라 실시간으로 실행됩니다.
-    2. related-artists Lambda는 AWS EventBridge에 등록한 Cron 식에 따라 주기적으로 실행됩니다. 
-    3. kakao-chatbot, related-artists Lambda가 DynamoDB 테이블을 업데이트할 때 top-tracks Lambda를 비동기로 호출합니다. top-tracks Lambda는 DynamoDB 테이블을 batch writer를 이용하여 업데이트합니다.
+    1. Lambda1(kakao-chatbot)은 사용자 요청에 따라 실시간으로 실행됩니다.
+    2. Lambda2(related-artists)는 AWS EventBridge에 등록한 Cron 식에 따라 주기적으로 실행됩니다. 
+    3. Lambda1(kakao-chatbot)과 Lambda2(related-artists)는 DynamoDB 테이블을 업데이트할 때 Lambda3(top-tracks)를 비동기로 호출합니다. Lambda3(top-tracks)는 DynamoDB 테이블을 batch writer를 이용하여 여러 항목을 한 번에 업데이트합니다.
 
 2. 각 데이터의 구조와 활용도에 따라 `RDS(MySQL)`, `DynamoDB`, `S3`에 적재했습니다. 
 
@@ -325,6 +325,6 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
     2. DynamoDB는 partition key, sort key가 필요한 데이터를 위해 사용했습니다. 예를 들어, 한 명의 가수에 해당하는 top track이 많을 경우, 가수를 partition key로 설정하여 Sharding 함으로써 효율성을 높였습니다. 또한 batch writing을 활용하여 효율적으로 데이터를 업데이트할 수 있습니다.
     3. S3는 AWS Athena를 통해 다양한 데이터를 분석하기 위해 사용했습니다. 특히 데이터를 parquet(columnar formats) 포맷으로 변환 후, 저장함으로써 압축률을 높이고 I/O를 감소시켰습니다. 또한 날짜 별 파티션을 통해 스캔하는 데이터의 양을 줄였습니다.
 
-3. `Athena`는 S3의 데이터를 분석하기 위해 사용했습니다. <a href="https://docs.aws.amazon.com/athena/latest/ug/convert-to-columnar.html">AWS documentation</a>에서 추천하듯이, Athena 쿼리 성능을 개선하기 위해 분석할 데이터를 `parquet`포맷으로 변환하여 S3에 적재했습니다.
+3. `Athena`는 S3의 데이터를 분석하기 위해 사용했습니다. <a href="https://docs.aws.amazon.com/athena/latest/ug/convert-to-columnar.html">AWS documentation("Converting to columnar formats")</a>에서 추천하듯이, Athena 쿼리 성능을 개선하기 위해 분석할 데이터를 `parquet`포맷으로 변환하여 S3에 적재했습니다.
 
 4. 관련 가수를 추천할 때 Euclidean distance를 활용했습니다. 이를 통해 audio features(loudness, danceability, energy 등)의 거리가 가장 가까운 음악을 하는 가수를 추천할 수 있습니다.
