@@ -313,7 +313,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ### 3-6) 주요 고려 사항
 
-1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 배치 처리를 수행할 Lambda와 실시간 처리를 수행할 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, 비동기 처리가 필요한 로직을 별도의 Lambda로 구성하여 효율성을 향상시켰습니다. 
+1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 배치 처리를 수행할 Lambda와 실시간 처리를 수행할 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, 비동기 처리가 필요한 로직을 별도의 Lambda로 분리하여 효율성을 향상시켰습니다. 
 
     1. kakao-chatbot Lambda는 사용자 요청에 따라 실시간으로 실행됩니다.
     2. related-artists Lambda는 AWS EventBridge에 등록한 Cron 식에 따라 주기적으로 실행됩니다. 
