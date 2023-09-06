@@ -210,7 +210,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ### 3-4) 전체 과정 요약
 
-- 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
+1. 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
     1. 최신 데이터를 S3 버킷에 업로드하고, DynamoDB(`top_tracks`) 업데이트
         1. RDS(artists)의 artist_id 데이터를 이용해서 Spotify API의 top_tracks, audio_features 데이터 가져 옴
         2. DynamoDB(top_tracks) 비동기 업데이트
@@ -230,7 +230,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
             - 가수마다 top tracks들의 audio features가 가장 유사한 순서로 관련 가수를 추천합니다.
         4. RDS(`related_artists`)에 관련 가수 저장
 
-- 실시간 처리
+2. 실시간 처리
     1. 사용자가 요청한 가수가 RDS(`artists`)에 있으면,
         1. 해당 가수가 RDS(`related_artists`)에 있으면,
             - 응답
