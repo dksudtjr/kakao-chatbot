@@ -24,7 +24,7 @@
 
 1. [Background](#1-Background)</br>
     1-1) [AWS Lambda](#1-1-aws-lambda)</br>
-    1-2) [Amazon Athena](#1-2-aws-athena)</br>
+    1-2) [Amazon Athena](#1-2-amazon-athena)</br>
     1-3) [.parquet](#1-3-parquet)</br>
 2. [개발 환경](#2-개발-환경)</br>
     2-1) [주요 개발 환경](#2-1-주요-개발-환경)</br>
