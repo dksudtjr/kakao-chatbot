@@ -47,7 +47,7 @@
 ### 1-1) `AWS Lambda`
 
 - 개념
-    > `AWS Lambda`는 이벤트에 대한 응답으로 코드를 실행하고 자동으로 컴퓨팅 리소스를 관리하는 서버리스 컴퓨팅 서비스입니다. 하루에 수십 개의 이벤트에서 초당 수십만 개에 이르기까지 어떤 규모에서든 코드 실행 요청에 자동으로 응답합니다. Amazon API Gateway를 통한 HTTP 요청, Amazon Simple Storage Service(Amazon S3) 버킷에 있는 객체에 대한 변경 사항, Amazon DynamoDB의 테이블 업데이트 또는 AWS Step Functions의 상태 전환과 같은 다양한 이벤트에 대한 응답으로 코드를 자동 실행할 수 있습니다. 사용한 컴퓨팅 시간만큼만 비용을 지불하고, 코드가 실행되지 않을 때는 요금이 부과되지 않습니다.
+     `AWS Lambda`는 이벤트에 대한 응답으로 코드를 실행하고 자동으로 컴퓨팅 리소스를 관리하는 서버리스 컴퓨팅 서비스입니다. 하루에 수십 개의 이벤트에서 초당 수십만 개에 이르기까지 어떤 규모에서든 코드 실행 요청에 자동으로 응답합니다. Amazon API Gateway를 통한 HTTP 요청, Amazon Simple Storage Service(Amazon S3) 버킷에 있는 객체에 대한 변경 사항, Amazon DynamoDB의 테이블 업데이트 또는 AWS Step Functions의 상태 전환과 같은 다양한 이벤트에 대한 응답으로 코드를 자동 실행할 수 있습니다. 사용한 컴퓨팅 시간만큼만 비용을 지불하고, 코드가 실행되지 않을 때는 요금이 부과되지 않습니다.
 
 - 장점
 
