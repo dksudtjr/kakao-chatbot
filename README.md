@@ -1,6 +1,7 @@
 # 카카오 추천 챗봇 (using Spotify data)
 
-해당 챗봇🤖은 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. (<a href="https://pf.kakao.com/_acwkxj">링크</a>)
+- 해당 챗봇🤖은 카카오톡에서 `뮤직봇` 채널을 검색하시면, 이용할 수 있습니다. (<a href="https://pf.kakao.com/_acwkxj">https://pf.kakao.com/_acwkxj</a>)
+- 코드는 <a href="https://github.com/dksudtjr/kakao-chatbot">https://github.com/dksudtjr/kakao-chatbot</a>에서 확인할 수 있습니다.
 
 <br></br>
 
