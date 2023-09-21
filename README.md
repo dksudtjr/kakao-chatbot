@@ -309,18 +309,16 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ### 3-6) 📌 주요 고려 사항
 
-1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 배치 처리를 수행할 Lambda와 실시간 처리를 수행할 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, 비동기 처리가 필요한 로직을 별도의 Lambda로 분리하여 효율성을 향상시켰습니다. 
+1. 해당 프로젝트는 챗봇의 특성을 고려하여, 사용자의 요청에 따라 자동 확장하여 병렬 처리할 수 있는 `Lambda`(Event-Driven Serverless) 서비스를 활용했습니다. 배치 처리를 수행할 Lambda와 실시간 처리를 수행할 Lambda를 구분해서 활용했습니다. 또한 자주 사용되며, DB에 저장하는 로직을 별도의 Lambda함수로 분리하고 비동기로 호출함으로써 응답 속도를 향상시켰습니다.
 
     1. Lambda1(kakao-chatbot)은 사용자 요청에 따라 실시간으로 실행됩니다.
     2. Lambda2(related-artists)는 AWS EventBridge에 등록한 Cron 식에 따라 주기적으로 실행됩니다. 
     3. Lambda1(kakao-chatbot)과 Lambda2(related-artists)는 DynamoDB 테이블을 업데이트할 때 Lambda3(top-tracks)를 비동기로 호출합니다. Lambda3(top-tracks)는 DynamoDB 테이블을 batch writer를 이용하여 여러 항목을 한 번에 업데이트합니다.
 
-2. 각 데이터의 구조와 활용도에 따라 `RDS(MySQL)`, `DynamoDB`, `S3`에 적재했습니다. 
+2. 유사한 가수를 추천하려면, 대용량의 데이터를 저장 및 처리해야 했습니다. 각 데이터의 구조와 활용도에 따라 `RDS(MySQL)`, `DynamoDB`, `S3`에 적재했습니다. 
 
     1. RDS(MySQL)은 테이블 간 관계가 필요할 때 사용했습니다.
-    2. DynamoDB는 partition key, sort key가 필요한 데이터를 위해 사용했습니다. 예를 들어, 한 명의 가수에 해당하는 top track이 많을 경우, 가수를 partition key로 설정하여 Sharding 함으로써 효율성을 높였습니다. 또한 batch writing을 활용하여 효율적으로 데이터를 업데이트할 수 있습니다.
-    3. S3는 AWS Athena를 통해 다양한 데이터를 분석하기 위해 사용했습니다. 특히 데이터를 parquet(columnar formats) 포맷으로 변환 후, 저장함으로써 압축률을 높이고 I/O를 감소시켰습니다. 또한 날짜 별 파티션을 통해 스캔하는 데이터의 양을 줄였습니다.
+    2. DynamoDB는 partition key, sort key가 필요한 데이터를 위해 사용했습니다. 예를 들어, 한 명의 가수에 해당하는 top track이 많을 경우, 가수를 partition key로 설정하여 Sharding 함으로써 효율성을 높였습니다. 또한 batch writing을 활용하여 효율적으로 데이터를 업데이트 했습니다.
+    3. Amazon S3에 데이터 레이크를 구축했고, S3의 데이터를 쿼리하기 위해 Amazon Athena를 사용했습니다. 특히 <a href="https://docs.aws.amazon.com/athena/latest/ug/convert-to-columnar.html">AWS documentation("Converting to columnar formats")</a>에서 추천하듯이, 중첩된 데이터 구조를 flat한 컬럼 형식의 parquet(columnar formats) 포맷으로 변환하여 압축률을 높이고, 컬럼의 일부만 스캔하도록 하여 I/O를 감소시켰습니다. 또한 날짜 별 데이터 파티셔닝을 통해 스캔하는 데이터의 양을 줄였습니다.  또한 응답 데이터는 챗봇이 바로 서비스할 수 있도록 `RDS`에 따로 저장함으로써 분석 속도와 응답 속도를 모두 개선할 수 있었습니다.
 
-3. `Athena`는 S3의 데이터를 분석하기 위해 사용했습니다. <a href="https://docs.aws.amazon.com/athena/latest/ug/convert-to-columnar.html">AWS documentation("Converting to columnar formats")</a>에서 추천하듯이, Athena 쿼리 성능을 개선하기 위해 분석할 데이터를 `parquet`포맷으로 변환하여 S3에 적재했습니다.
-
-4. 관련 가수를 추천할 때 Euclidean distance를 활용했습니다. 이를 통해 audio features(loudness, danceability, energy 등)의 거리가 가장 가까운 음악을 하는 가수를 추천할 수 있습니다.
+3. 관련 가수를 추천할 때 Euclidean distance를 활용했습니다. 이를 통해 audio features(loudness, danceability, energy 등)의 거리가 가장 가까운 음악을 하는 가수를 추천할 수 있습니다.
