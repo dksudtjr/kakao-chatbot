@@ -245,7 +245,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
             1. 가수마다 여러 top track의 audio features 평균값 계산 (목적: 유사도 계산)
             2. audio_features 데이터의 최소값, 최대값 계산 (목적: normalization)
         3. <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>를 이용하여 관련 가수 계산
-            - 가수마다 top tracks들의 audio features가 가장 유사한 순서로 관련 가수를 추천합니다.
+            - 가수마다 top tracks들의 audio features가 가장 유사한 순서로 관련 가수를 추천
         4. RDS(`related_artists`)에 관련 가수 저장
 
 
