@@ -214,7 +214,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 <br>
 
-#### 1.  입력한 아티스트의 정보 제공
+#### 1.  요청한 아티스트의 정보 제공
 
 - **실시간**
     1. RDS(`artists`)에 사용자가 요청한 가수가 있으면,
