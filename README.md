@@ -210,49 +210,48 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 <br></br>
 
-### 3-4) 전체 프로세스 요약
+### 3-4) 전 프로세스 요약
 
 1. 기본적인 환경설정 및 메시지 응답 테스트 (챗봇 생성 후, Lambda에 연결)
     1. 카카오톡 채널 생성 및 카카오 오픈빌더 봇 기본 설정
     2. AWS `Lambda` 및 `API Gateway` 설정
     3. 챗봇 테스트
-3. 실시간 처리
-    > 입력한 아티스트의 정보 제공   
-    1. RDS(`artists`)에 사용자가 요청한 가수가 있으면,
-        1. RDS(`related_artists`)에 해당 가수가 있으면,
+3.  입력한 아티스트의 정보 제공
+    - 실시간
+        1. RDS(`artists`)에 사용자가 요청한 가수가 있으면,
+            1. RDS(`related_artists`)에 해당 가수가 있으면,
+                - 응답
+                    - 해당 가수의 top tracks
+                    - 관련 가수들의 top tracks
+            2. RDS(`related_artists`)에 해당 가수가 없으면,
+                - 응답
+                    - 해당 가수의 top tracks
+        2. RDS(`artists`)에 사용자가 요청한 가수가 없으면,
+            - 업데이트 (using Spotify API)
+                - RDS(`artists`) 업데이트
+                - DynamoDB(`top_tracks`) 비동기 업데이트
             - 응답
-                - 해당 가수의 top tracks
-                - 관련 가수들의 top tracks
-        2. RDS(`related_artists`)에 해당 가수가 없으면,
-            - 응답
-                - 해당 가수의 top tracks
-    2. RDS(`artists`)에 사용자가 요청한 가수가 없으면,
-        - 업데이트 (using Spotify API)
-            - RDS(`artists`) 업데이트
-            - DynamoDB(`top_tracks`) 비동기 업데이트
-        - 응답
-            - 해당 가수의 top tracks 응답
-            - 관련 가수 업데이트 일정 (매일 새벽 3시)
-4. 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
-    > 관련 가수 및 노래 추천 
-    1. S3, DynamoDB(`top_tracks`)를 최신 데이터로 업데이트
-        1. RDS(artists)의 데이터(artist_id)를 이용해서 Spotify API에서 데이터(top_tracks, audio_features) 가져 옴
-        2. DynamoDB(top_tracks) 비동기 업데이트
-        3. S3에 top-tracks.parquet, audio-features.parquet 업로드 (날짜 별 파티션 생성)
-    2. Athena를 이용하여 관련 가수 계산 후, RDS(`related_artists`)에 저장
-        1. Athena 설정
-            1. DB 생성 (AWS `Data Catalog`에 등록)
-                - '쿼리 결과 위치' 지정 (S3)
-            2. S3의 원본 데이터를 읽도록 External 테이블(`top_tracks`, `audio_features`) 생성
-                - 원본 데이터에 매핑되는 column 정의
-                - 원본 데이터가 저장되어 있는 S3 위치, 파티션 지정
-                - 원본 데이터의 포맷, 압축 방식 지정
-        2. Athena 쿼리
-            1. 가수마다 여러 top track의 audio features 평균값 계산 (목적: 유사도 계산)
-            2. audio_features 데이터의 최소값, 최대값 계산 (목적: normalization)
-        3. <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>를 이용하여 관련 가수 계산
-            - 가수마다 top tracks들의 audio features가 가장 유사한 순서로 관련 가수를 추천
-        4. RDS(`related_artists`)에 관련 가수 저장
+                - 해당 가수의 top tracks 응답
+4. 관련 가수 및 노래 추천 ()
+    - 배치 (AWS `EventBridge`의 cron 표현식 이용 → 매일 새벽 3시에 자동화)
+        1. S3, DynamoDB(`top_tracks`)를 최신 데이터로 업데이트
+            1. RDS(artists)의 데이터(artist_id)를 이용해서 Spotify API에서 데이터(top_tracks, audio_features) 가져 옴
+            2. DynamoDB(top_tracks) 비동기 업데이트
+            3. S3에 top-tracks.parquet, audio-features.parquet 업로드 (날짜 별 파티션 생성)
+        2. Athena를 이용하여 관련 가수 계산 후, RDS(`related_artists`)에 저장
+            1. Athena 설정
+                1. DB 생성 (AWS `Data Catalog`에 등록)
+                    - '쿼리 결과 위치' 지정 (S3)
+                2. S3의 원본 데이터를 읽도록 External 테이블(`top_tracks`, `audio_features`) 생성
+                    - 원본 데이터에 매핑되는 column 정의
+                    - 원본 데이터가 저장되어 있는 S3 위치, 파티션 지정
+                    - 원본 데이터의 포맷, 압축 방식 지정
+            2. Athena 쿼리
+                1. 가수마다 여러 top track의 audio features 평균값 계산 (목적: 유사도 계산)
+                2. audio_features 데이터의 최소값, 최대값 계산 (목적: normalization)
+            3. <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>를 이용하여 관련 가수 계산
+                - 가수마다 top tracks들의 audio features가 가장 유사한 순서로 관련 가수를 추천
+            4. RDS(`related_artists`)에 관련 가수 저장
 
 
     
