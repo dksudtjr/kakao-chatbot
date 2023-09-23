@@ -212,6 +212,8 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ### 3-4) 📌 전체 프로세스 요약
 
+<br>
+
 #### 1.  입력한 아티스트의 정보 제공
 
 - **실시간**
