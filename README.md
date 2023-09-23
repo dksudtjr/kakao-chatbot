@@ -210,25 +210,24 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 <br></br>
 
-### 3-4) 전체 과정 요약
+### 3-4) 전체 프로세스 요약
 
 1. 실시간 처리
-    1. 사용자가 요청한 가수가 RDS(`artists`)에 있으면,
-        1. 해당 가수가 RDS(`related_artists`)에 있으면,
+    1. RDS(`artists`)에 사용자가 요청한 가수가 있으면,
+        1. RDS(`related_artists`)에 해당 가수가 있으면,
             - 응답
                 - 해당 가수의 top tracks
                 - 관련 가수들의 top tracks
-        2. 해당 가수가 RDS(`related_artists`)에 없으면,
+        2. RDS(`related_artists`)에 해당 가수가 없으면,
             - 응답
                 - 해당 가수의 top tracks
-                - 관련 가수 업데이트 일정 (매일 새벽 3시)
-    2. 사용자가 요청한 가수가 RDS(`artists`)에 없으면,
+    2. RDS(`artists`)에 사용자가 요청한 가수가 없으면,
+        - 업데이트 (using Spotify API)
+            - RDS(`artists`) 업데이트
+            - DynamoDB(`top_tracks`) 비동기 업데이트
         - 응답
             - 해당 가수의 top tracks 응답
             - 관련 가수 업데이트 일정 (매일 새벽 3시)
-        - 업데이트
-            - RDS(`artists`) 업데이트
-            - DynamoDB(`top_tracks`) 비동기 업데이트
 2. 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
     1. S3, DynamoDB(`top_tracks`)를 최신 데이터로 업데이트
         1. RDS(artists)의 데이터(artist_id)를 이용해서 Spotify API에서 데이터(top_tracks, audio_features) 가져 옴
