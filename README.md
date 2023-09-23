@@ -212,8 +212,12 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 ### 3-4) 전체 프로세스 요약
 
-1. 실시간 처리
-    > ㄴㅇㄹㅇㄴㄹㄴㅇㄹ   
+1. 기본적인 환경설정 및 메시지 응답 테스트 (챗봇 생성 후, Lambda에 연결)
+    1. 카카오톡 채널 생성 및 카카오 오픈빌더 봇 기본 설정
+    2. AWS `Lambda` 및 `API Gateway` 설정
+    3. 챗봇 테스트
+3. 실시간 처리
+    > 입력한 아티스트의 정보 제공   
     1. RDS(`artists`)에 사용자가 요청한 가수가 있으면,
         1. RDS(`related_artists`)에 해당 가수가 있으면,
             - 응답
@@ -229,7 +233,8 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
         - 응답
             - 해당 가수의 top tracks 응답
             - 관련 가수 업데이트 일정 (매일 새벽 3시)
-3. 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
+4. 배치 처리 (매일 새벽 3시) - AWS `EventBridge`의 cron 표현식 이용하여 자동화
+    > 관련 가수 및 노래 추천 
     1. S3, DynamoDB(`top_tracks`)를 최신 데이터로 업데이트
         1. RDS(artists)의 데이터(artist_id)를 이용해서 Spotify API에서 데이터(top_tracks, audio_features) 가져 옴
         2. DynamoDB(top_tracks) 비동기 업데이트
