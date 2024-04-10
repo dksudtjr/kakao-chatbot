@@ -316,7 +316,7 @@ Spotify API에서 제공하는 artists, top-tracks, audio-features 데이터를 
 
 <br></br>
 
-* 주의 사항
+* 📌 주의 사항
     - lambda_function.py
         - Lambda함수가 호출되면, 기본적으로 lambda_function.py 파일의 lambda_handler 메소드를 호출합니다. 파일 이름, 메소드 이름은 임의로 변경할 수 있습니다. 변경 시, 런타임 설정에서 변경된 파일 이름과 메소드 이름을 적용해야 합니다.
     - kakao-chatbot 폴더
