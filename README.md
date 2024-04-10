@@ -161,7 +161,7 @@ Parquet은 데이터를 컬럼 기반으로 저장하기 때문에, 각 컬럼�
 
 3. `DynamoDB`: 가수 별 top tracks 데이터를 저장합니다(Spotify API를 통해 가수마다 최대 10개의 top track 데이터를 얻을 수 있습니다.) DynamoDB에서 partition key(가수 ID), sort key(top track ID)를 설정하여 테이블을 생성합니다. DynamoDB는 partition key(가수 ID)로 테이블을 수평 분할하고 sort key(top track ID)를 이용하여 필요한 '아티스트의 트랙'만 조회하므로 효율적입니다. 또한 "Batch write"와 같은 NoSQL 데이터베이스의 대량 데이터 처리용 API를 사용하면, 여러 항목을 한 번에 쓰거나 삭제할 때 효율적입니다. 반면에 RDS(MySQL)는 PK로 가수 ID를 지정하면, 10개의 top track을 한 column에 모두 집어 넣어야 하므로 비효율적입니다.
 
-4. `Spotify API`: 음원 데이터를 제공하는 국내 서비스는 없습니다. 현재 시점(2023.03)에서 spotify에서 제공하는 음원 데이터가 양적, 질적으로 가장 우수하다고 판단 됩니다.
+4. `Spotify API`: 음원 데이터를 제공하는 국내 서비스는 없습니다. 현재 시점에서 spotify에서 제공하는 음원 데이터가 양적, 질적으로 가장 우수하다고 판단 됩니다.
 
 5. `Amazon API Gateway`: 사용자의 요청을 실시간을 처리하는 Lambda(kako-chatbot/lambda_function)의 트리거로 추가합니다.
 
